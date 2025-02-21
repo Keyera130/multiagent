@@ -320,34 +320,62 @@ def betterEvaluationFunction(currentGameState: GameState):
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: This evaluation function builds on the original one (which earned 4/5)
+    by adding capsule features and small penalties for remaining food and capsules.
+    It uses the following features:
+      - Current game score.
+      - Distance to the closest food pellet (the closer, the better).
+      - Distance to the closest capsule (if any), with a modest weight.
+      - For ghosts: if a ghost is scared, being near is good; if active, being near is bad.
+      - A penalty proportional to the number of remaining food pellets and capsules.
+    The feature weights are tuned to remain on a similar scale as the original function,
+    so that the search algorithms reliably return a legal move (and never None).
     """
-    "*** YOUR CODE HERE ***"
-    pacmanPos = currentGameState.getPacmanPosition()
+    #Get game state info regarding positions of pacman, food, ghost states and scared timers as well and capsules. Start with baseline game score
+    #Get pacmans current position
+    pacmanPos = currentGameState.getPacmanPosition() 
+    
+    #Get list of all positions
     foodList = currentGameState.getFood().asList()
+
+
     ghostStates = currentGameState.getGhostStates()
     scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
+    capsules = currentGameState.getCapsules()
 
-    # Basic score (current score)
+    # Baseline, using current score
     score = currentGameState.getScore()
 
-    # Food distance: We want Pacman to eat food that is closest.
-    foodDist = [manhattanDistance(pacmanPos, food) for food in foodList]
-    minFoodDist = min(foodDist) if foodDist else 0  # Avoid errors if there's no food
-    foodScore = -minFoodDist  # Negative because we want Pacman closer to food
+    # Food Component. Calculate manhattan distance from pacman to each food pellet to see which is the closest one. Subtracting minimum distance rewards states where there's food nearby, encouraging pacman to move there
+    foodDistances = [manhattanDistance(pacmanPos, food) for food in foodList]
+    minFoodDist = min(foodDistances) if foodDistances else 0
+    foodScore = -minFoodDist
 
-    # Ghost distance: Penalize if Pacman is too close to a ghost.
-    ghostScores = []
-    for i, ghostState in enumerate(ghostStates):
-        ghostDist = manhattanDistance(pacmanPos, ghostState.getPosition())
+    # similar to food component.
+    if capsules:
+        capsuleDistances = [manhattanDistance(pacmanPos, cap) for cap in capsules]
+        minCapsuleDist = min(capsuleDistances)
+    else:
+        minCapsuleDist = 0
+    capsuleScore = -2 * minCapsuleDist
+
+    #  for each ghost, reward being near if scared; penalize if active. Also used manhattan distance. The way this works, ghost is near: if it is scared, distance is added
+    # which is a reward. If ghost is active, there's a penalty by subtracting the distance. 
+    ghostScore = 0
+    for i, ghost in enumerate(ghostStates):
+        ghostDist = manhattanDistance(pacmanPos, ghost.getPosition())
         if scaredTimes[i] > 0:
-            ghostScores.append(ghostDist)  # If ghost is scared, we want to get closer
+            # Being closer to a scared ghost is good. Pos reward
+            ghostScore += ghostDist
         else:
-            ghostScores.append(-ghostDist)  # Otherwise, avoid ghosts
-    ghostScore = sum(ghostScores)
+            # Being close to an active ghost is bad. Penalty
+            ghostScore -= ghostDist
 
-    # Return final evaluation: Combine the features
-    return score + foodScore + ghostScore
-
+    # Small penalty for the remaining capsules and food, which encourages the agent to move quicker, which by extension implies encouraging a higher score.
+    foodLeftPenalty = -1 * len(foodList)
+    capsuleLeftPenalty = -2 * len(capsules)
+    
+    # final score is calculated with food, capsules, ghost components, and penalties.
+    return score + foodScore + capsuleScore + ghostScore + foodLeftPenalty + capsuleLeftPenalty
 # Abbreviation
 better = betterEvaluationFunction

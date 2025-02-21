@@ -1,27 +1,78 @@
 Please Enter your team's full names and your answers to the questions marked by QS questions here!
+Ali Barazi Keyera Lastrap
 
-Q1.1:
+Q1.1:  The original ReflexAgent used to choose an action/decision at each point by evaluating the 
+successor states as a result of each move. This initial function was more basic, it simply returned 
+the game score of the successor state using successorGameState.getScore(), which means only the overall 
+score was even considered without accounting for other factors like proximity to ghosts or food which 
+are big parts of the game. Many improvements were made such as penalizing stop actions by returning 
+negative infinity if the agent stops, encouraging the pacman to stay moving. The function also computes 
+the Manhattan distance and uses the reciprocal of the Min distance so that the bonus increases when the 
+food is in higher procimity. The ghost proximity handling is also added here for both active and scared 
+ghosts with a scaled bonus for scared ghosts, and a heavy penalty of 10 for active ghosts. 
+
 
 Q1.2:
-
+Value function in our Reflex agent assigns a score to a state action pair after taking an action. This 
+value tells us how good each state is good for pacman based on current position, the higher the value 
+of the score, the better the state. The value function has several components, it uses the current score 
+of the game as a baseline score. It rewards states that are nearby and have food by subtracting the 
+Manhattan distance, and does something similar with ghosts rewarding scared ghosts states and penalizing 
+proximity to active ghosts. Capsule distance is also taken into account with penalties for remaining 
+states with capusles and food to encourage the game to move quickly. This is a balanced estimation which 
+takes into account both rewards and safety leading to better actions.
 
 
 
 Q2.1:
+The minmaxagent uses a recursive algorithm that works for any number of ghosts by switching between 
+maximizing pacman and minimizing ghosts. If the current state is a win or lose state, the algorithm 
+returns the evaluation function’s score. For the pacman’s turn the algorithm computes the max value 
+over all legal actions meaning pacman chooses the move that results in the highest minmax value state. 
+For each ghost, the algorithm calculates the minimum value over all legal actions. After the last ghost 
+moves, the depth is incremented and then returns to Pacman. The recursion alterantes between ghost and 
+pacman by resetting the agent index to 0 after the last ghost. This algorithm incorporates adversarial 
+modeling,  and a recursion which expands all possible states.
 
 
 
 
 
-Q3.1:
+Q3.1: Alpha-beta pruning is an optimization algorithm that eliminates branches that are kind of 
+irrelevant when it comes to the final minmax value. As long as children are accessed in the same 
+order and pruning is only done when the branch’s value is worse than the current bound, the remaining 
+values computed will be identical to those from plain minmax. Alpha-Beta pruning skips unnecessary 
+computations and keeps the outcome the same.
 
 Q3.2
+The agent processes successor state in the order returned by that GameState to keep things consistent. 
+When the same minmax is returned by two or more actions, we choose the first one encountered. This 
+approach is simple and deterministic.
 
 
 
 Q4.1:
+Expectimac differs from minmax by using stochastic behaviour. Instead of taking the minimum over ghost 
+actions, the algorithm finds the expected value by averaging the outcomes. This algorithm assumes that 
+ghosts choose their actions at random. The two key features of this algorithm are the Pacman maximizer 
+in which at pacman nodes the algorithm will still chose the maximum expected value, and at ghost nodes 
+the value is the average of all successor’s values rather than the min value.
 
 
 Q5.1:
+This evaluation function is an improvement on the reflex agent one because it assesses the whole game 
+state instead of just immediate actions, combining all the features such as food, capsules, ghosts, 
+remaining items, etc.  This provides a well balanced guide for pacman to make decisions. Baseline score 
+is also the current gamescore here. The Food component calculates the Manhattan distance to the closest 
+food pellet and subtracts that distance to encourage pacman to move towards the nearest food pellet  
+without overemphasizing or undervaluing which may have occurred in the previous model. If there are 
+capsules available, the nearest capsule distance is computed and the component subtracts twice that 
+distance. Since capsules are important for scaring ghosings, this factor enourages pacman to pick those 
+capsules up when needed. The algorithm similar to the initial one also takes into account the status of 
+ghosts and penalizes remaining food items. Overall there’s more balanced features with more carefully 
+chosen weights on this algorithm which allows pacman to make better more informed decisions rather than 
+simply reacting to immediate threats. Unlike the previous reflex evaluation function, which was more 
+action based, this function has a broader perspective by evaluating the entire game states that look 
+multiple moves ahead. This function also is designed to improve performance that prevents extreme values.
 
 
